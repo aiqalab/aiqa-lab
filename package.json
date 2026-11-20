@@ -1,0 +1,12 @@
+{
+  "name": "selfheal-demo",
+  "private": true,
+  "scripts": {
+    "test": "playwright test --reporter=line",
+    "heal:report": "node scripts/report.mjs",
+    "heal:apply": "node scripts/apply.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0"
+  }
+}

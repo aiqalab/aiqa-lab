@@ -1,0 +1,206 @@
+<title>Self-Healing Tests Deck</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Instrument+Sans:wght@400;500&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  /* Layout: one slide at a time, 16:9 feel, keyboard/click navigation, terminal-flavoured accents. */
+  :root {
+    --bg: #f4f6f3; --panel: #ffffff; --fg: #14201f; --muted: #5a6b69; --line: #d5dcd9;
+    --accent: #0b7a75; --pass: #1a7f45; --fail: #b3261e; --warn: #9a6200;
+    --display: "Bricolage Grotesque", "Segoe UI", sans-serif;
+    --body: "Instrument Sans", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #0e1615; --panel: #16221f; --fg: #e8f0ee; --muted: #93a8a4; --line: #29403b;
+    --accent: #3fd0c6; --pass: #4cd488; --fail: #ff7b72; --warn: #e3b341; color-scheme: dark; } }
+  :root[data-theme="dark"] {
+    --bg: #0e1615; --panel: #16221f; --fg: #e8f0ee; --muted: #93a8a4; --line: #29403b;
+    --accent: #3fd0c6; --pass: #4cd488; --fail: #ff7b72; --warn: #e3b341; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--body); margin: 0;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .deck { height: 100%; display: flex; flex-direction: column; padding-block: 16px; gap: 12px; }
+  .stage { flex: 1; min-height: 0; position: relative; }
+  .slide { position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center;
+    gap: 24px; max-width: 1100px; margin: 0 auto; width: 100%; padding: 8px 4px; overflow-y: auto; }
+  .slide.on { display: flex; }
+  .tag { font: 600 13px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 0; }
+  h1, h2 { font-family: var(--display); font-weight: 700; margin: 0; text-wrap: balance; line-height: 1.05; }
+  h1 { font-size: clamp(36px, 7vw, 84px); }
+  h2 { font-size: clamp(30px, 5vw, 60px); }
+  p, li { font-size: clamp(18px, 2.3vw, 28px); line-height: 1.4; margin: 0; max-width: 34em; }
+  ul { margin: 0; padding-left: 1.1em; display: grid; gap: 12px; }
+  .muted { color: var(--muted); }
+  code, .term { font-family: var(--mono); }
+  .term { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 16px 20px;
+    font-size: clamp(15px, 2vw, 24px); line-height: 1.6; overflow-x: auto; white-space: pre; }
+  .red { color: var(--fail); } .green { color: var(--pass); } .amber { color: var(--warn); } .acc { color: var(--accent); }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch; }
+  .step { flex: 1 1 150px; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 14px; font-size: clamp(14px, 1.7vw, 20px); display: grid; gap: 6px; align-content: start; }
+  .step b { font: 600 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .step.ai { border-color: var(--accent); } .step.gate { border-color: var(--warn); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font: 500 clamp(13px, 1.6vw, 18px) var(--mono); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; background: var(--panel); }
+  .cut { display: grid; gap: 10px; border: 2px dashed var(--line); border-radius: 8px; padding: 20px; }
+  .cut .tag { color: var(--warn); }
+  .split { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .bar { display: flex; align-items: center; gap: 12px; font: 13px var(--mono); color: var(--muted); }
+  .dots { flex: 1; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+  .dots i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .2s; }
+  button { font: 500 14px var(--mono); background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { .dots i { transition: none; } }
+</style>
+
+<div class="deck">
+  <div class="stage" id="stage">
+
+    <section class="slide on" data-t="0:00">
+      <p class="tag">Hook · 0:00</p>
+      <h1>One rename.<br>One red test.</h1>
+      <div class="term"><span class="red">✘ creates a project</span>
+  Error: locator('[data-testid="create-project-btn"]') not found</div>
+      <p class="muted">The feature works. The selector moved.</p>
+    </section>
+
+    <section class="slide" data-t="0:20">
+      <p class="tag">Intro · 0:20</p>
+      <h2>Mahesh · QA Automation</h2>
+      <ul>
+        <li>The problem</li><li>How self-healing works</li><li>Live demo: pass, change, fail, repair</li>
+        <li>Proof the test still checks the right thing</li><li>What it cannot do</li>
+      </ul>
+    </section>
+
+    <section class="slide" data-t="0:46">
+      <p class="tag">Problem · 0:46</p>
+      <h2>Healthy feature.<br>Failing test.</h2>
+      <div class="split">
+        <div class="term"><span class="red">- [data-testid="create-project-btn"]</span></div>
+        <div class="term"><span class="green">+ [data-testid="new-project-action"]</span></div>
+      </div>
+      <p class="muted">Read the failure, find the locator, edit, rerun. Every release.</p>
+    </section>
+
+    <section class="slide" data-t="1:22">
+      <p class="tag">Why AI · 1:22</p>
+      <h2>A retry repeats the lookup.<br>A rule can't guess the rename.</h2>
+      <p>A model reads the live page and infers which element matches the intent.</p>
+    </section>
+
+    <section class="slide" data-t="1:45">
+      <p class="tag">Workflow · 1:45</p>
+      <h2>AI proposes. The gate decides.</h2>
+      <div class="row">
+        <div class="step"><b>1 Fail</b>Action or assertion throws</div>
+        <div class="step"><b>2 Classify</b>Network and auth errors are skipped</div>
+        <div class="step"><b>3 Still in DOM?</b>Yes: timing issue, wait longer, no AI</div>
+        <div class="step ai"><b>4 AI proposes</b>Selector + confidence, from up to 30 candidates</div>
+        <div class="step gate"><b>5 Gate</b>One match, visible, enabled, same role and name</div>
+        <div class="step"><b>6 Retry + log</b>Same action or assertion</div>
+      </div>
+    </section>
+
+    <section class="slide" data-t="2:50">
+      <p class="tag">Setup · 2:50 · switch to terminal</p>
+      <h2>One command. Reversible.</h2>
+      <div class="term"><span class="acc">$</span> selfheal init</div>
+      <div class="chips"><span class="chip">fixture + config</span><span class="chip">imports marked // self-healing</span><span class="chip">clean restores them</span></div>
+      <p class="muted">Hide API keys on screen.</p>
+    </section>
+
+    <section class="slide" data-t="3:15">
+      <p class="tag">Demo 1 · 3:15 · switch to terminal</p>
+      <h2>Healing OFF: red</h2>
+      <div class="term"><span class="acc">$</span> SELF_HEALING_ENABLED=false npx playwright test
+<span class="red">1 failed</span>   element not found</div>
+      <div class="cut"><p class="tag">Record live</p><p>Passing run, then rename the test id, then this run.</p></div>
+    </section>
+
+    <section class="slide" data-t="3:55">
+      <p class="tag">Demo 2 · 3:55 · switch to terminal</p>
+      <h2>Healing ON: green</h2>
+      <div class="term"><span class="amber">[Self-Healing]</span> click failed for: [data-testid="create-project-btn"]
+<span class="amber">[Self-Healing]</span> gate passed: unique button, visible, enabled
+<span class="amber">[Self-Healing]</span> retrying: [data-testid="new-project-action"]
+<span class="green">1 passed</span></div>
+      <p class="muted">Placeholder wording. Replace with the real log after rehearsal. Caption: "wait trimmed".</p>
+    </section>
+
+    <section class="slide" data-t="4:55">
+      <p class="tag">Review · 4:55 · switch to terminal</p>
+      <h2>Human applies. Human reviews.</h2>
+      <div class="term"><span class="acc">$</span> selfheal report
+<span class="acc">$</span> selfheal apply            <span class="muted"># dry run</span>
+<span class="acc">$</span> selfheal apply --execute
+<span class="acc">$</span> git diff                         <span class="muted"># selector changed, assertion untouched</span></div>
+    </section>
+
+    <section class="slide" data-t="6:00">
+      <p class="tag">Defect vs drift · 6:00</p>
+      <h2>Heal the locator.<br>Never the expectation.</h2>
+      <div class="split">
+        <div class="step"><b>Drift</b>Replacement already contains the expected text. Test goes green.</div>
+        <div class="step gate"><b>Defect</b>Text missing. Gate rejects. Original error is thrown. Test stays red.</div>
+      </div>
+      <p class="muted">AI plus heuristics. A reviewer owns the final call.</p>
+    </section>
+
+    <section class="slide" data-t="6:40">
+      <p class="tag">Benefits · 6:40</p>
+      <h2>What changes for the team</h2>
+      <ul>
+        <li>Fewer interruptions from cosmetic UI changes</li>
+        <li>Less time hunting for the new locator</li>
+        <li>A record of every heal: what broke, what changed, why</li>
+      </ul>
+      <p class="muted">Illustration, not a measurement: 20 tests × 10 min = 3 h 20 min of maintenance.</p>
+    </section>
+
+    <section class="slide" data-t="7:15">
+      <p class="tag">Limits · 7:15</p>
+      <h2>Know the limits</h2>
+      <div class="chips">
+        <span class="chip">selectors only</span><span class="chip">not flows, data, or timing bugs</span>
+        <span class="chip">ranked candidates, not a page snapshot</span><span class="chip">one API call per heal</span>
+        <span class="chip">confident wrong match is possible</span>
+      </div>
+    </section>
+
+    <section class="slide" data-t="7:45">
+      <p class="tag">Close · 7:45</p>
+      <h1>AI repairs.<br>QA judges.</h1>
+      <p class="muted">Thanks for watching</p>
+    </section>
+  </div>
+
+  <div class="bar">
+    <button id="prev" aria-label="Previous slide">←</button>
+    <span id="pos">1 / 13</span>
+    <span class="dots"><i id="prog"></i></span>
+    <span id="clock">0:00</span>
+    <button id="next" aria-label="Next slide">→</button>
+  </div>
+</div>
+
+<script>
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var i = 0;
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function (s, k) { s.classList.toggle('on', k === i); });
+    document.getElementById('pos').textContent = (i + 1) + ' / ' + slides.length;
+    document.getElementById('prog').style.width = ((i + 1) / slides.length * 100) + '%';
+    document.getElementById('clock').textContent = slides[i].dataset.t;
+  }
+  document.getElementById('next').onclick = function () { show(i + 1); };
+  document.getElementById('prev').onclick = function () { show(i - 1); };
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); show(i + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(i - 1); }
+  });
+  document.getElementById('stage').addEventListener('click', function () { show(i + 1); });
+  show(0);
+</script>
