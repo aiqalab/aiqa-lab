@@ -1,0 +1,22 @@
+{
+  "name": "playwright-self-healing-demo",
+  "version": "1.0.0",
+  "description": "Educational demo: self-healing locators for Playwright tests (works offline, optional AI providers)",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "report": "node scripts/report.mjs",
+    "typecheck": "tsc --noEmit",
+    "install:browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
